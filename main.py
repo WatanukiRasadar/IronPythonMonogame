@@ -12,23 +12,30 @@ from Microsoft.Xna.Framework import *
 from Microsoft.Xna.Framework.Graphics import *
 from Microsoft.Xna.Framework.Input import *
 
+def getKeyboardStatus():
+	return Keyboard.GetState().GetPressedKeys()
+def getMouseStatus():
+	state =  Mouse.GetState()
+	return [str((str(state.LeftButton),state.ScrollWheelValue,str(state.RightButton))),]
 class App(Game):
     def __init__(self):
         self.graphics = GraphicsDeviceManager(self)
         self.Content.RootDirectory = os.getcwd() + "/Content"
-        self.keyboardListener = KeyBoardListener(Keyboard)
+        self.eventHandler = EventHandler()
+        self.eventHandler.addListener("keyboard", getKeyboardStatus)
+        self.eventHandler.addListener("Mouse", getMouseStatus)
         self.spriteBatch = None
         self.currentStage = Stage(self)
     def LoadContent(self):
     	self.currentStage.Load()
     	self.spriteBatch = SpriteBatch(self.graphics.GraphicsDevice)
     def Update(self,gameTime):
-    	self.keyboardListener.action()
+    	self.eventHandler.action()
     def Draw(self, gameTime):
         self.graphics.GraphicsDevice.Clear(Color.Black)
         self.spriteBatch.Begin()
         for texture in self.currentStage.textures:
-        	self.spriteBatch.Draw(texture.getTexture(),Vector2(100,100),Color.White)
+        	self.spriteBatch.Draw(texture.getTexture(),Vector2(texture.position[0],texture.position[1]),Color.White)
         self.spriteBatch.End()
         Game.Draw(self, gameTime)
 
@@ -41,14 +48,15 @@ class Stage(object):
 		self.game = game
 		self.textures = []
 	def Load(self):
-		walkTrigger = EventTrigger()
-		actionTrigger = EventTrigger()
-		self.game.keyboardListener.addTrigger("Right", walkTrigger)
-		self.game.keyboardListener.addTrigger("X", actionTrigger)
-		stopedTrigger = EventTrigger()
-		sprite = Sprite(stopedTrigger, self.LoadHeroState("hero/stop"))
-		sprite.events.append(State(walkTrigger,sprite,self.LoadHeroState("hero/walk")))
-		sprite.events.append(State(actionTrigger,sprite,self.LoadHeroState("hero/action")))
+		sprite = Sprite(self.LoadHeroState("hero/stop"))
+		walking = State(sprite,self.LoadHeroState("hero/walk"),priority=7)
+		action = State(sprite,self.LoadHeroState("hero/action"),priority=5)
+		self.game.eventHandler.addEventToListener("keyboard","X",action)
+		self.game.eventHandler.addEventToListener("Mouse",('Pressed',0,'Released'),action)
+		self.game.eventHandler.addEventToListener("keyboard","Right",walking)
+		self.game.eventHandler.addEventToListener("keyboard","Left",walking)
+		self.game.eventHandler.addEventToListener("keyboard","Right",MovimentEvent(sprite))
+		self.game.eventHandler.addEventToListener("keyboard","Left",MovimentEvent(sprite,speed=[-1,0]))
 		self.textures.append(sprite)
 
 	def LoadHeroState(self,path):
@@ -57,23 +65,7 @@ class Stage(object):
 			listSprites.append(self.game.Content.Load[Texture2D](path + "/" + img.replace(".png","")))
 		return listSprites
 
-
-
-class KeyBoardListener(object):
-	def __init__(self,keyboard,keysTriggers={}):
-		self.keyboard=keyboard
-		self.keysTriggers = keysTriggers
-	def addTrigger(self,key,trigger):
-		if not self.keysTriggers.has_key(key):
-			self.keysTriggers[key] = []
-		self.keysTriggers[key].append(trigger)
-	def action(self):
-		presseds = self.keyboard.GetState().GetPressedKeys()
-		for key in presseds:
-			if self.keysTriggers.has_key(str(key)):
-				for trigger in self.keysTriggers[str(key)]:
-					trigger.action()
-
 if __name__ == "__main__":
+	
 	app = App()
 	app.Run()

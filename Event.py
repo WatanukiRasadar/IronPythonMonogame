@@ -12,10 +12,31 @@ class EventTrigger(object):
 
 class Event(object):
 	__metaclass__=ABCMeta
-	def __init__(self,trigger):
-		assert isinstance(trigger, EventTrigger)
-		self.trigger = trigger
-		self.trigger.addEvent(self)
 	@abstractmethod
 	def action(self):
 		return NotImplemented
+
+class EventHandler(object):
+	def __init__(self):
+		self._listeners={}
+		self._triggers={}
+
+	def addListener(self,key,listener):
+		self._listeners[str(key)]=listener
+		self._triggers[str(key)] = {}
+
+	def addEventToListener(self,listenerKey,listenerStatus,event):
+		assert isinstance(event, Event)
+		triggersListerner = self._triggers[str(listenerKey)]
+		if not str(listenerStatus) in triggersListerner:
+			triggersListerner[str(listenerStatus)] = EventTrigger()
+		triggersListerner[str(listenerStatus)].addEvent(event)
+
+	def action(self):
+		for listenerKey,listener in self._listeners.items():
+			status = listener()
+			for state in status:
+				if str(state) in self._triggers[listenerKey].keys():
+					self._triggers[listenerKey][str(state)].action()
+
+
