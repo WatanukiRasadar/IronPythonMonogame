@@ -57,6 +57,10 @@ class Stage(object):
 		self.game.eventHandler.addEventToListener("keyboard","Left",walking)
 		self.game.eventHandler.addEventToListener("keyboard","Right",MovimentEvent(sprite))
 		self.game.eventHandler.addEventToListener("keyboard","Left",MovimentEvent(sprite,speed=[-1,0]))
+		self.game.eventHandler.addEventToListener("keyboard","Up",MovimentEvent(sprite,speed=[0,-1]))
+		self.game.eventHandler.addEventToListener("keyboard","Down",MovimentEvent(sprite,speed=[0,1]))
+		self.game.eventHandler.addEventToListener("keyboard","Up",walking)
+		self.game.eventHandler.addEventToListener("keyboard","Down",walking)
 		self.textures.append(sprite)
 
 	def LoadHeroState(self,path):
