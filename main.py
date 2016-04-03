@@ -5,7 +5,7 @@ isWindows = sys.platform == 'win32'
 if isWindows:
 	print 'windows'
 else:
-	dllpath = "./dll/unix" 
+	dllpath = os.getcwd()+"/dll/unix" 
 	for dll in os.listdir(dllpath):
 		clr.AddReferenceToFileAndPath(dllpath + "/" + dll)
 from Microsoft.Xna.Framework import *
@@ -22,8 +22,8 @@ class App(Game):
         self.graphics = GraphicsDeviceManager(self)
         self.Content.RootDirectory = os.getcwd() + "/Content"
         self.eventHandler = EventHandler()
-        self.eventHandler.addListener("keyboard", getKeyboardStatus)
-        self.eventHandler.addListener("Mouse", getMouseStatus)
+        self.eventHandler.addListener(Keyboard, getKeyboardStatus)
+        self.eventHandler.addListener(Mouse, getMouseStatus)
         self.spriteBatch = None
         self.currentStage = Stage(self)
     def LoadContent(self):
@@ -49,18 +49,18 @@ class Stage(object):
 		self.textures = []
 	def Load(self):
 		sprite = Sprite(self.LoadHeroState("hero/stop"))
-		walking = State(sprite,self.LoadHeroState("hero/walk"),priority=7)
-		action = State(sprite,self.LoadHeroState("hero/action"),priority=5)
-		self.game.eventHandler.addEventToListener("keyboard","X",action)
-		self.game.eventHandler.addEventToListener("Mouse",('Pressed',0,'Released'),action)
-		self.game.eventHandler.addEventToListener("keyboard","Right",walking)
-		self.game.eventHandler.addEventToListener("keyboard","Left",walking)
-		self.game.eventHandler.addEventToListener("keyboard","Right",MovimentEvent(sprite))
-		self.game.eventHandler.addEventToListener("keyboard","Left",MovimentEvent(sprite,speed=[-1,0]))
-		self.game.eventHandler.addEventToListener("keyboard","Up",MovimentEvent(sprite,speed=[0,-1]))
-		self.game.eventHandler.addEventToListener("keyboard","Down",MovimentEvent(sprite,speed=[0,1]))
-		self.game.eventHandler.addEventToListener("keyboard","Up",walking)
-		self.game.eventHandler.addEventToListener("keyboard","Down",walking)
+		walking = MovimentState(sprite,self.LoadHeroState("hero/walk"),priority=7)
+		action = ActionState(sprite,self.LoadHeroState("hero/action"),priority=5)
+		self.game.eventHandler.addEventToListener(Keyboard,"X",action)
+		self.game.eventHandler.addEventToListener(Mouse,('Pressed',0,'Released'),action)
+		self.game.eventHandler.addEventToListener(Keyboard,"Right",walking)
+		self.game.eventHandler.addEventToListener(Keyboard,"Left",walking)
+		self.game.eventHandler.addEventToListener(Keyboard,"Right",MovimentEvent(sprite))
+		self.game.eventHandler.addEventToListener(Keyboard,"Left",MovimentEvent(sprite,speed=[-1,0]))
+		self.game.eventHandler.addEventToListener(Keyboard,"Up",MovimentEvent(sprite,speed=[0,-1]))
+		self.game.eventHandler.addEventToListener(Keyboard,"Down",MovimentEvent(sprite,speed=[0,1]))
+		self.game.eventHandler.addEventToListener(Keyboard,"Up",walking)
+		self.game.eventHandler.addEventToListener(Keyboard,"Down",walking)
 		self.textures.append(sprite)
 
 	def LoadHeroState(self,path):
