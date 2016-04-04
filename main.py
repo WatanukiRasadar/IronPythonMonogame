@@ -49,12 +49,13 @@ class Stage(object):
 		self.textures = []
 	def Load(self):
 		sprite = Sprite(self.LoadHeroState("hero/stop"))
-		walking = MovimentState(sprite,self.LoadHeroState("hero/walk"),priority=7)
-		action = ActionState(sprite,self.LoadHeroState("hero/action"),priority=5)
+		walking = MovimentState(sprite,self.LoadHeroState("hero/walk"),priority=[ActionState])
+		walking2 = MovimentState(sprite,self.LoadHeroState("hero/walk"),priority=[ActionState])
+		action = ActionState(sprite,self.LoadHeroState("hero/action"),priority=[ActionState])
 		self.game.eventHandler.addEventToListener(Keyboard,"X",action)
 		self.game.eventHandler.addEventToListener(Mouse,('Pressed',0,'Released'),action)
 		self.game.eventHandler.addEventToListener(Keyboard,"Right",walking)
-		self.game.eventHandler.addEventToListener(Keyboard,"Left",walking)
+		self.game.eventHandler.addEventToListener(Keyboard,"Left",walking2)
 		self.game.eventHandler.addEventToListener(Keyboard,"Right",MovimentEvent(sprite))
 		self.game.eventHandler.addEventToListener(Keyboard,"Left",MovimentEvent(sprite,speed=[-1,0]))
 		self.game.eventHandler.addEventToListener(Keyboard,"Up",MovimentEvent(sprite,speed=[0,-1]))

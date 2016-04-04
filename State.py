@@ -5,7 +5,6 @@ class Sprite(object):
 	def __init__(self,listaImagem,position=[255,255]):
 		self.default = IdleState(self, listaImagem)
 		self.atual = cycle(self.default.listaImagem)
-		self.priority = 10
 		self.atualState=self.default
 		self.position = position
 	def getTexture(self):
@@ -16,7 +15,6 @@ class Sprite(object):
 		return next(self.atual)
 	def setIdle(self):
 		self.atual = cycle(self.default.listaImagem)
-		self.priority = 10
 		self.atualState = self.default
 
 class MovimentEvent(Event):
@@ -26,25 +24,23 @@ class MovimentEvent(Event):
 		self.speed = speed
 	def action(self):
 		if not isinstance(self.sprite.atualState,ActionState):
-			print self.sprite.atualState
 			self.sprite.position[0]+=self.speed[0]
 			self.sprite.position[1]+=self.speed[1]
 
 class State(Event):
 	"""docstring for State"""
-	def __init__(self,sprite,listaImagem,priority=10):
+	def __init__(self,sprite,listaImagem,priority=[]):
 		assert isinstance(sprite, Sprite)
 		self.sprite = sprite
 		self.listaImagem = listaImagem
 		self.iter = iter(self.listaImagem)
 		self.priority = priority
 	def action(self):
-		if (not self.sprite.atual == self.iter) and self.priority < self.sprite.priority:
+		if not isinstance(self,self.sprite.atualState.__class__) and not isinstance(self.sprite.atualState,tuple(self.priority)):
 			self.sprite.atual = iter(self.listaImagem)
 			self.iter = self.sprite.atual
-			self.sprite.priority = self.priority
 			self.sprite.atualState = self
-		if self.priority == self.sprite.priority and (not self.sprite.atual == self.iter):
+		if not isinstance(self.sprite.atualState,tuple(self.priority)) and self.sprite.atualState != self:
 			self.sprite.setIdle()
 
 class MovimentState(State):pass
