@@ -8,7 +8,7 @@ Utiliza as bibliotecas do .net:
 - Mono
 - OpenTK
 
-Compative com IronPython 2.7
+Compativel com IronPython 2.7
 o sistema de eventos pode ser adaptado e utilizado para qualquer interpretador python 2.7 (pypy ,jython, cpython ...), sendo os arquivos:
 
 - Event.py
